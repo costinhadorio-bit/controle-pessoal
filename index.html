@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Controle Pessoal</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: cabeçalho com título e busca, filtros por categoria, grade de atalhos para cada formulário */
+:root {
+  color-scheme: light;
+  --bg: #f4f5f8;
+  --surface: #ffffff;
+  --surface-2: #eceef4;
+  --fg: #191d29;
+  --muted: #566075;
+  --line: #dcdfe8;
+  --accent: #4b3fb8;
+  --accent-fg: #ffffff;
+  --accent-soft: #e9e7fb;
+  --warn-bg: #fcefcf;
+  --warn-fg: #6e4a00;
+  --danger: #b3261e;
+  --danger-soft: #fbe7e5;
+  --shadow: 0 1px 2px rgba(25, 29, 41, .06), 0 4px 14px rgba(25, 29, 41, .05);
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Figtree", ui-sans-serif, system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11131a;
+    --surface: #191c26;
+    --surface-2: #222634;
+    --fg: #e9ebf2;
+    --muted: #99a0b3;
+    --line: #2b3040;
+    --accent: #a49cf2;
+    --accent-fg: #15122e;
+    --accent-soft: #28254a;
+    --warn-bg: #3a2d0e;
+    --warn-fg: #f0cf84;
+    --danger: #f2918a;
+    --danger-soft: #3a1f1d;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11131a;
+  --surface: #191c26;
+  --surface-2: #222634;
+  --fg: #e9ebf2;
+  --muted: #99a0b3;
+  --line: #2b3040;
+  --accent: #a49cf2;
+  --accent-fg: #15122e;
+  --accent-soft: #28254a;
+  --warn-bg: #3a2d0e;
+  --warn-fg: #f0cf84;
+  --danger: #f2918a;
+  --danger-soft: #3a1f1d;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px;
+}
+.wrap { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+button, input, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* cabeçalho */
+.head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 20px; }
+.head > div { min-width: 0; }
+h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.75rem, 5vw, 2.6rem);
+  line-height: 1.1;
+  letter-spacing: -.02em;
+  margin: 0;
+  text-wrap: balance;
+}
+.sub { margin: 6px 0 0; color: var(--muted); font-size: .9375rem; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 40px; padding: 0 16px;
+  border-radius: 10px; border: 1px solid var(--line);
+  background: var(--surface); cursor: pointer; font-weight: 500; font-size: .9375rem;
+  text-decoration: none; color: var(--fg);
+}
+.btn:hover { background: var(--surface-2); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.btn.primary:hover { filter: brightness(1.08); background: var(--accent); }
+.btn.danger { color: var(--danger); border-color: var(--danger); background: var(--danger-soft); }
+.btn svg, .icon-btn svg { width: 18px; height: 18px; flex: none; }
+
+/* busca */
+.search { position: relative; }
+.search svg { position: absolute; left: 14px; top: 50%; width: 20px; height: 20px; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.search input {
+  width: 100%; min-height: 50px; padding: 0 52px 0 44px;
+  border-radius: 12px; border: 1px solid var(--line); background: var(--surface);
+  font-size: 1rem;
+}
+.search kbd {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  font-family: var(--font-body); font-size: .75rem; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 6px; padding: 1px 7px; background: var(--surface-2);
+}
+@media (hover: none) { .search kbd { display: none; } }
+
+/* filtros */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  min-height: 36px; padding: 0 14px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); font-size: .875rem; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.chip:hover { background: var(--surface-2); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.chip .n { font-variant-numeric: tabular-nums; opacity: .7; font-weight: 400; }
+
+/* aviso de exemplos */
+.notice {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px;
+  background: var(--warn-bg); color: var(--warn-fg);
+  border-radius: 12px; padding: 12px 16px; font-size: .9375rem;
+}
+.notice p { margin: 0; flex: 1 1 260px; min-width: 0; }
+.notice .btn { min-height: 34px; font-size: .875rem; background: transparent; border-color: currentColor; color: inherit; }
+
+/* editor */
+.editor {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 20px; display: flex; flex-direction: column; gap: 16px; box-shadow: var(--shadow);
+}
+.editor h2 { font-family: var(--font-display); font-size: 1.25rem; margin: 0; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field.wide { grid-column: 1 / -1; }
+label, .label { font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.field input, .field textarea {
+  width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--bg); resize: vertical;
+}
+.actions-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.msg { margin: 0; font-size: .875rem; color: var(--danger); min-height: 1.25em; }
+.msg.ok { color: var(--muted); }
+details.bulk { border-top: 1px solid var(--line); padding-top: 14px; }
+details.bulk summary { cursor: pointer; font-weight: 500; }
+details.bulk .inner { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+.hint { margin: 0; color: var(--muted); font-size: .875rem; }
+@media (max-width: 560px) { .form-grid { grid-template-columns: 1fr; } }
+
+/* grade */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 14px; }
+.tile {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0;
+  box-shadow: var(--shadow);
+}
+.tile-top { display: flex; align-items: center; gap: 8px; }
+.cat {
+  font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--accent); background: var(--accent-soft); border-radius: 6px; padding: 2px 8px;
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.tag-ex { font-size: .75rem; font-weight: 600; background: var(--warn-bg); color: var(--warn-fg); border-radius: 6px; padding: 2px 8px; }
+.spacer { flex: 1; }
+.icon-btn {
+  width: 36px; height: 36px; border-radius: 9px; border: 1px solid transparent; background: transparent;
+  display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); flex: none;
+}
+.icon-btn:hover { background: var(--surface-2); color: var(--fg); }
+.icon-btn.fav[aria-pressed="true"] { color: var(--accent); }
+.icon-btn.fav[aria-pressed="true"] svg { fill: currentColor; }
+.icon-btn.danger { width: auto; padding: 0 10px; color: var(--danger); background: var(--danger-soft); border-color: var(--danger); font-size: .8125rem; font-weight: 500; }
+.tile h3 {
+  font-family: var(--font-display); font-weight: 700; font-size: 1.1875rem; line-height: 1.25;
+  margin: 0; letter-spacing: -.01em; overflow-wrap: anywhere; text-wrap: balance;
+}
+.desc {
+  margin: 0; color: var(--muted); font-size: .9375rem; flex: 1;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere;
+}
+.host { font-size: .8125rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tile-foot { display: flex; flex-direction: column; gap: 10px; }
+.tile-btns { display: flex; align-items: center; gap: 6px; }
+.tile-btns .btn { flex: 1; }
+.tile-btns .icon-btn { border-color: var(--line); }
+
+.empty {
+  grid-column: 1 / -1; text-align: center; color: var(--muted);
+  border: 1px dashed var(--line); border-radius: 14px; padding: 40px 20px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.empty strong { color: var(--fg); font-family: var(--font-display); font-size: 1.125rem; }
+.empty p { margin: 0; max-width: 42ch; }
+
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  background: var(--fg); color: var(--bg); padding: 10px 18px; border-radius: 10px;
+  font-size: .9375rem; box-shadow: 0 6px 24px rgba(0, 0, 0, .25); max-width: calc(100% - 32px);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tile, .btn, .chip, .icon-btn { transition: background-color .15s, border-color .15s; }
+}
+
+/* layout simplificado: cada registro é um botão com o próprio título */
+.grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); }
+.tile { background: none; border: 0; box-shadow: none; padding: 0; gap: 6px; }
+.open {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 64px; padding: 12px 18px; border-radius: 14px;
+  background: var(--accent); color: var(--accent-fg); text-decoration: none; cursor: pointer;
+  font-family: var(--font-display); font-weight: 700; font-size: 1.0625rem; line-height: 1.25;
+  letter-spacing: -.01em; box-shadow: var(--shadow);
+}
+.open:hover { filter: brightness(1.08); }
+.open .open-t { min-width: 0; overflow-wrap: anywhere; }
+.open svg { width: 20px; height: 20px; flex: none; }
+.open.bad { background: var(--surface-2); color: var(--muted); cursor: default; box-shadow: none; }
+.tile-manage { display: flex; align-items: center; gap: 6px; padding: 0 2px; }
+
+/* coluna central com barra de rolagem própria */
+.wrap { max-width: 560px; }
+.head { flex-direction: column; align-items: center; text-align: center; }
+.chips { justify-content: center; }
+.grid {
+  display: flex; flex-direction: column; gap: 12px;
+  max-height: min(62vh, 560px); max-height: min(62dvh, 560px);
+  overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable;
+  padding: 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface);
+  scrollbar-width: thin; scrollbar-color: var(--accent) transparent;
+}
+.grid .tile { flex: none; }
+.grid .empty { grid-column: auto; }
+
+/* nomes centralizados, sem seta */
+.open { justify-content: center; text-align: center; }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <div>
+      <h1>Controle Pessoal</h1>
+      <p class="sub" id="sub">Carregando seus formulários…</p>
+    </div>
+    <button class="btn" id="manage" type="button" hidden aria-expanded="false"></button>
+  </header>
+
+  <section class="editor" id="editor" hidden aria-labelledby="editor-title">
+    <h2 id="editor-title">Novo link</h2>
+    <form id="link-form" autocomplete="off">
+      <div class="form-grid">
+        <div class="field wide">
+          <label for="f-title">Nome do formulário</label>
+          <input id="f-title" maxlength="120" placeholder="Ex.: Inscrição na feira de ciências" required>
+        </div>
+        <div class="field wide">
+          <label for="f-url">Link</label>
+          <input id="f-url" type="text" inputmode="url" placeholder="https://forms.gle/..." required>
+        </div>
+        <div class="field">
+          <label for="f-cat">Categoria</label>
+          <input id="f-cat" list="cat-list" maxlength="40" placeholder="Ex.: Eventos">
+        </div>
+        <div class="field">
+          <label for="f-desc">Descrição (opcional)</label>
+          <input id="f-desc" maxlength="240" placeholder="Para que serve este formulário">
+        </div>
+      </div>
+      <p class="msg" id="f-msg" role="status"></p>
+      <div class="actions-row">
+        <button class="btn primary" type="submit" id="f-save">Salvar link</button>
+        <button class="btn" type="button" id="f-cancel">Limpar</button>
+      </div>
+    </form>
+    <details class="bulk">
+      <summary>Colar vários links de uma vez</summary>
+      <div class="inner">
+        <p class="hint">Um link por linha. Se quiser, escreva o nome antes do link, por exemplo: Pesquisa de clima - https://forms.gle/exemplo</p>
+        <div class="field">
+          <label for="b-cat">Categoria para todos</label>
+          <input id="b-cat" list="cat-list" maxlength="40" placeholder="Ex.: Pesquisas">
+        </div>
+        <div class="field">
+          <label for="b-text">Links</label>
+          <textarea id="b-text" rows="5" placeholder="https://forms.gle/..."></textarea>
+        </div>
+        <p class="msg" id="b-msg" role="status"></p>
+        <div class="actions-row"><button class="btn primary" type="button" id="b-go">Adicionar todos</button></div>
+      </div>
+    </details>
+    <datalist id="cat-list"></datalist>
+  </section>
+
+  <div id="notice" class="notice" hidden></div>
+
+  <div class="chips" id="chips" role="group" aria-label="Filtrar por categoria"></div>
+
+  <main class="grid" id="grid" aria-live="polite">
+    <div class="empty"><strong>Carregando…</strong><p>Buscando os links salvos nesta página.</p></div>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function () {
+  var ICONS = {
+    ext: '<path d="M7 17 17 7"/><path d="M8 7h9v9"/>',
+    copy: '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>',
+    star: '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
+    edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+    trash: '<path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>'
+  };
+  function icon(name) {
+    var s = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    s.setAttribute('viewBox', '0 0 24 24');
+    s.setAttribute('fill', 'none');
+    s.setAttribute('stroke', 'currentColor');
+    s.setAttribute('stroke-width', '2');
+    s.setAttribute('stroke-linecap', 'round');
+    s.setAttribute('stroke-linejoin', 'round');
+    s.setAttribute('aria-hidden', 'true');
+    s.innerHTML = ICONS[name];
+    return s;
+  }
+  function h(tag, attrs) {
+    var el = document.createElement(tag);
+    attrs = attrs || {};
+    for (var k in attrs) {
+      var v = attrs[k];
+      if (v == null || v === false) continue;
+      if (k === 'class') el.className = v;
+      else if (k.indexOf('on') === 0) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? '' : v);
+    }
+    for (var i = 2; i < arguments.length; i++) {
+      var c = arguments[i];
+      if (c == null || c === false) continue;
+      el.append(c.nodeType ? c : document.createTextNode(c));
+    }
+    return el;
+  }
+  function $(id) { return document.getElementById(id); }
+  function norm(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+
+  var state = { q: '', cat: 'Todos', favOnly: false, manage: false, editId: null, loaded: false, error: false, canEdit: false };
+  var items = [];
+  var db = null;
+  var confirmId = null;
+  var favs = new Set();
+  try { favs = new Set(JSON.parse(localStorage.getItem('forms-hub-favs') || '[]')); } catch (e) {}
+  function saveFavs() { try { localStorage.setItem('forms-hub-favs', JSON.stringify(Array.from(favs))); } catch (e) {} }
+
+  var toastTimer;
+  function toast(msg) {
+    var t = $('toast');
+    t.textContent = msg;
+    t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.hidden = true; }, 2400);
+  }
+
+  function safeHref(url) {
+    try { var u = new URL(url); return u.protocol === 'https:' ? u.href : null; } catch (e) { return null; }
+  }
+  function hostOf(url) {
+    try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return ''; }
+  }
+  function normalizeUrl(raw) {
+    var s = String(raw || '').trim();
+    if (!s) return null;
+    if (/^http:\/\//i.test(s)) s = 'https://' + s.slice(7);
+    if (!/^https:\/\//i.test(s)) {
+      if (/^[\w-]+(\.[\w-]+)+(\/|$)/.test(s)) s = 'https://' + s; else return null;
+    }
+    try { return new URL(s).href; } catch (e) { return null; }
+  }
+
+  function copyText(text) {
+    function fallback() {
+      var ok = false;
+      try {
+        var ta = h('textarea', { 'aria-hidden': 'true', style: 'position:fixed;opacity:0;left:-999px' });
+        ta.value = text;
+        document.body.append(ta);
+        ta.select();
+        ok = document.execCommand('copy');
+        ta.remove();
+      } catch (e) {}
+      toast(ok ? 'Link copiado' : 'Não foi possível copiar. Abra o formulário e copie o endereço.');
+    }
+    try {
+      navigator.clipboard.writeText(text).then(function () { toast('Link copiado'); }, fallback);
+    } catch (e) { fallback(); }
+  }
+
+  /* ---------- renderização ---------- */
+  function categories() {
+    var m = {};
+    items.forEach(function (i) { var c = i.category || 'Geral'; m[c] = (m[c] || 0) + 1; });
+    return Object.keys(m).sort(function (a, b) { return a.localeCompare(b, 'pt-BR'); }).map(function (c) { return [c, m[c]]; });
+  }
+
+  function renderHead() {
+    var cats = categories().length;
+    var sub = $('sub');
+    if (state.error) sub.textContent = 'Não foi possível carregar os links.';
+    else if (!state.loaded) sub.textContent = 'Carregando seus formulários…';
+    else if (!items.length) sub.textContent = 'Nenhum formulário salvo ainda.';
+    else sub.textContent = items.length + (items.length === 1 ? ' formulário' : ' formulários') + ' em ' + cats + (cats === 1 ? ' categoria' : ' categorias');
+    var m = $('manage');
+    m.hidden = !state.canEdit;
+    m.textContent = '';
+    m.append(state.manage ? 'Concluir' : 'Gerenciar links');
+    m.setAttribute('aria-expanded', String(state.manage));
+    $('editor').hidden = !(state.canEdit && state.manage);
+    var dl = $('cat-list');
+    dl.textContent = '';
+    categories().forEach(function (c) { dl.append(h('option', { value: c[0] })); });
+  }
+
+  function renderNotice() {
+    var n = $('notice');
+    var ex = items.filter(function (i) { return i.example; });
+    if (!ex.length) { n.hidden = true; return; }
+    n.hidden = false;
+    n.textContent = '';
+    n.append(h('p', {}, 'Estes botões são exemplos para mostrar como a página funciona. Troque pelos seus links.'));
+    if (state.canEdit) {
+      n.append(h('button', { class: 'btn', type: 'button', onclick: removeExamples }, 'Remover exemplos'));
+    }
+  }
+
+  function renderChips() {
+    var box = $('chips');
+    box.textContent = '';
+    if (!items.length) return;
+    function chip(label, count, active, onclick) {
+      var b = h('button', { class: 'chip', type: 'button', 'aria-pressed': String(active), onclick: onclick }, label, h('span', { class: 'n' }, String(count)));
+      box.append(b);
+    }
+    chip('Todos', items.length, state.cat === 'Todos' && !state.favOnly, function () { state.cat = 'Todos'; state.favOnly = false; renderChips(); renderGrid(); });
+    var favCount = items.filter(function (i) { return favs.has(i.id); }).length;
+    if (favCount) chip('Fixados', favCount, state.favOnly, function () { state.favOnly = !state.favOnly; state.cat = 'Todos'; renderChips(); renderGrid(); });
+    categories().forEach(function (c) {
+      chip(c[0], c[1], state.cat === c[0] && !state.favOnly, function () { state.cat = c[0]; state.favOnly = false; renderChips(); renderGrid(); });
+    });
+  }
+
+  function visibleItems() {
+    var q = norm(state.q).trim();
+    var list = items.filter(function (i) {
+      if (state.favOnly && !favs.has(i.id)) return false;
+      if (state.cat !== 'Todos' && (i.category || 'Geral') !== state.cat) return false;
+      if (!q) return true;
+      return norm([i.title, i.description, i.category, hostOf(i.url)].join(' ')).indexOf(q) !== -1;
+    });
+    var f = list.filter(function (i) { return favs.has(i.id); });
+    var r = list.filter(function (i) { return !favs.has(i.id); });
+    return f.concat(r);
+  }
+
+  function emptyBox(title, text, btn) {
+    var e = h('div', { class: 'empty' }, h('strong', {}, title), h('p', {}, text));
+    if (btn) e.append(btn);
+    return e;
+  }
+
+  function renderGrid() {
+    var g = $('grid');
+    g.textContent = '';
+    if (state.error) {
+      g.append(emptyBox('Os links não carregaram', 'Entre na sua conta do Claude e abra esta página de novo.'));
+      return;
+    }
+    if (!state.loaded) {
+      g.append(emptyBox('Carregando…', 'Buscando os links salvos nesta página.'));
+      return;
+    }
+    if (!items.length) {
+      g.append(state.canEdit
+        ? emptyBox('Nenhum link ainda', 'Toque em “Gerenciar links” e cole o primeiro link do Google Forms. Você pode colar vários de uma vez.', h('button', { class: 'btn primary', type: 'button', onclick: function () { state.manage = true; renderHead(); renderGrid(); $('f-title').focus(); } }, icon('plus'), 'Adicionar link'))
+        : emptyBox('Nenhum link publicado', 'Quem mantém esta página ainda não adicionou formulários.'));
+      return;
+    }
+    var list = visibleItems();
+    if (!list.length) {
+      g.append(emptyBox('Nada encontrado', state.q ? 'Nenhum formulário combina com “' + state.q + '”.' : 'Não há formulários neste filtro.', h('button', { class: 'btn', type: 'button', onclick: function () { state.q = ''; state.cat = 'Todos'; state.favOnly = false; renderChips(); renderGrid(); } }, 'Limpar filtros')));
+      return;
+    }
+    list.forEach(function (it) { g.append(tile(it)); });
+  }
+
+  function tile(it) {
+    var href = safeHref(it.url);
+    var label = it.title || 'Formulário sem título';
+    var main = href
+      ? h('a', { class: 'open', href: href, target: '_blank', rel: 'noopener noreferrer' }, h('span', { class: 'open-t' }, label))
+      : h('span', { class: 'open bad' }, label + ' (link inválido)');
+    var el = h('article', { class: 'tile' }, main);
+    if (state.canEdit && state.manage) {
+      var row = h('div', { class: 'tile-manage' }, h('span', { class: 'cat' }, it.category || 'Geral'));
+      if (it.example) row.append(h('span', { class: 'tag-ex' }, 'Exemplo'));
+      row.append(h('span', { class: 'spacer' }));
+      row.append(h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Editar ' + label, title: 'Editar', onclick: function () { startEdit(it); } }, icon('edit')));
+      if (confirmId === it.id) {
+        row.append(h('button', { class: 'icon-btn danger', type: 'button', onclick: function () { removeItem(it); } }, 'Confirmar'));
+      } else {
+        row.append(h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Excluir ' + label, title: 'Excluir', onclick: function () {
+          confirmId = it.id; renderGrid();
+          setTimeout(function () { if (confirmId === it.id) { confirmId = null; renderGrid(); } }, 4000);
+        } }, icon('trash')));
+      }
+      el.append(row);
+    }
+    return el;
+  }
+
+  function render() { renderHead(); renderNotice(); renderChips(); renderGrid(); }
+
+  /* ---------- gravação ---------- */
+  function setMsg(id, text, ok) {
+    var m = $(id);
+    m.textContent = text || '';
+    m.className = 'msg' + (ok ? ' ok' : '');
+  }
+  function resetForm() {
+    state.editId = null;
+    $('link-form').reset();
+    $('editor-title').textContent = 'Novo link';
+    $('f-save').textContent = 'Salvar link';
+    $('f-cancel').textContent = 'Limpar';
+    setMsg('f-msg', '');
+  }
+  function startEdit(it) {
+    state.editId = it.id;
+    $('f-title').value = it.title || '';
+    $('f-url').value = it.url || '';
+    $('f-cat').value = it.category || '';
+    $('f-desc').value = it.description || '';
+    $('editor-title').textContent = 'Editar link';
+    $('f-save').textContent = 'Salvar alterações';
+    $('f-cancel').textContent = 'Cancelar edição';
+    setMsg('f-msg', '');
+    $('editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    $('f-title').focus();
+  }
+
+  $('link-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!db) return;
+    var title = $('f-title').value.trim();
+    var url = normalizeUrl($('f-url').value);
+    if (!title) { setMsg('f-msg', 'Escreva o nome do formulário.'); return; }
+    if (!url) { setMsg('f-msg', 'Cole um link completo, começando com https://'); return; }
+    var data = { title: title, url: url, category: $('f-cat').value.trim() || 'Geral', description: $('f-desc').value.trim() };
+    var btn = $('f-save');
+    btn.disabled = true;
+    var p;
+    if (state.editId) {
+      data.example = false;
+      p = db.doc('links/' + state.editId).update(data);
+    } else {
+      data.createdAt = Date.now();
+      p = db.collection('links').add(data);
+    }
+    p.then(function () {
+      var edited = !!state.editId;
+      resetForm();
+      toast(edited ? 'Alterações salvas' : 'Link adicionado');
+      $('f-title').focus();
+    }, function () {
+      setMsg('f-msg', 'Não foi possível salvar. Tente de novo em instantes.');
+    }).then(function () { btn.disabled = false; });
+  });
+  $('f-cancel').addEventListener('click', resetForm);
+
+  $('b-go').addEventListener('click', function () {
+    if (!db) return;
+    var lines = $('b-text').value.split(/\n+/).map(function (s) { return s.trim(); }).filter(Boolean).slice(0, 50);
+    var cat = $('b-cat').value.trim() || 'Geral';
+    var rows = [];
+    var skipped = 0;
+    lines.forEach(function (line) {
+      var m = line.match(/https?:\/\/\S+/i);
+      var url = m ? normalizeUrl(m[0]) : null;
+      if (!url) { skipped++; return; }
+      var title = line.replace(m[0], '').replace(/^[\s\-–—|:]+|[\s\-–—|:]+$/g, '').trim() || 'Formulário sem título';
+      rows.push({ title: title.slice(0, 120), url: url, category: cat, description: '' });
+    });
+    if (!rows.length) { setMsg('b-msg', 'Não encontrei nenhum link válido. Cada linha precisa de um endereço https://'); return; }
+    var btn = $('b-go');
+    btn.disabled = true;
+    setMsg('b-msg', 'Adicionando…', true);
+    var base = Date.now();
+    var chain = Promise.resolve();
+    var done = 0;
+    rows.forEach(function (r, i) {
+      chain = chain.then(function () {
+        r.createdAt = base + i;
+        return db.collection('links').add(r).then(function () { done++; });
+      });
+    });
+    chain.then(function () {
+      $('b-text').value = '';
+      setMsg('b-msg', '');
+      toast(done + (done === 1 ? ' link adicionado' : ' links adicionados') + (skipped ? ' · ' + skipped + ' linha(s) sem link foram ignoradas' : ''));
+    }, function () {
+      setMsg('b-msg', 'Foram adicionados ' + done + ' de ' + rows.length + '. Tente de novo com os que faltam.');
+    }).then(function () { btn.disabled = false; });
+  });
+
+  function removeItem(it) {
+    confirmId = null;
+    if (state.editId === it.id) resetForm();
+    favs.delete(it.id); saveFavs();
+    db.doc('links/' + it.id).delete().then(function () { toast('Link excluído'); }, function () { toast('Não foi possível excluir.'); });
+  }
+  function removeExamples() {
+    var ex = items.filter(function (i) { return i.example; });
+    var chain = Promise.resolve();
+    ex.forEach(function (it) { chain = chain.then(function () { return db.doc('links/' + it.id).delete(); }); });
+    chain.then(function () { toast('Exemplos removidos'); }, function () { toast('Não foi possível remover os exemplos.'); });
+  }
+
+  /* ---------- busca e atalhos ---------- */
+  $('manage').addEventListener('click', function () {
+    state.manage = !state.manage;
+    confirmId = null;
+    if (!state.manage) resetForm();
+    renderHead(); renderGrid();
+  });
+
+  /* ---------- dados (salvos neste navegador) ---------- */
+  var KEY = 'controle-pessoal-links';
+  var SEED = [
+    { id: 's1', title: 'Comprovantes de pagamento do baile', url: 'https://drive.google.com/drive/folders/11VXDvhGFTm1kxPQMjcNq4OFzmz_AF29t?ths=true', category: 'Registros', description: 'Teste', createdAt: 1 }
+  ];
+  var store = SEED.slice();
+  try { var saved = JSON.parse(localStorage.getItem(KEY)); if (Array.isArray(saved)) store = saved; } catch (e) {}
+  var listeners = [];
+  function persist() {
+    try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {}
+    listeners.forEach(function (fn) { fn(); });
+  }
+  db = {
+    collection: function () {
+      return {
+        add: function (d) {
+          var o = Object.assign({}, d, { id: 'l' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) });
+          store.push(o); persist(); return Promise.resolve();
+        },
+        orderBy: function () {
+          return {
+            onSnapshot: function (next) {
+              function emit() {
+                var rows = store.slice().sort(function (a, b) { return (a.createdAt || 0) - (b.createdAt || 0); });
+                next({ docs: rows.map(function (o) { return { id: o.id, data: function () { return Object.assign({}, o); } }; }) });
+              }
+              listeners.push(emit); emit();
+            }
+          };
+        }
+      };
+    },
+    doc: function (path) {
+      var id = path.split('/')[1];
+      return {
+        update: function (d) { store = store.map(function (o) { return o.id === id ? Object.assign({}, o, d) : o; }); persist(); return Promise.resolve(); },
+        delete: function () { store = store.filter(function (o) { return o.id !== id; }); persist(); return Promise.resolve(); }
+      };
+    }
+  };
+  state.canEdit = true;
+  render();
+  db.collection('links').orderBy('createdAt', 'asc').onSnapshot(function (snap) {
+    items = snap.docs.map(function (d) { var o = d.data() || {}; o.id = d.id; return o; });
+    state.loaded = true; state.error = false;
+    render();
+  });
+})();
+</script>
+</body>
+</html>
